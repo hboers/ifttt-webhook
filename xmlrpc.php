@@ -11,6 +11,7 @@ switch($xml->methodName)
 	case 'mt.supportedMethods':
 		success('metaWeblog.getRecentPosts');
 		break;
+
 	//first authentication request from ifttt
 	case 'metaWeblog.getRecentPosts':
 		//send a blank blog response
@@ -36,6 +37,14 @@ switch($xml->methodName)
 				case 'mt_keywords': //tags
 					break;
 
+				//the passed tags are parsed into an array
+				case 'tags':
+					$tags=array();
+					foreach($data->xpath('value/array/data/value/string') as $tag)
+						array_push($tags,(string)$tag);
+					$obj->tags = $tags;
+					break;
+				
 				//the passed categories are parsed into an array
 				case 'categories':
 					$categories=array();
@@ -47,6 +56,7 @@ switch($xml->methodName)
 				case 'description':
 					$url = (string)$data->value->string;
 					break;
+
 				//this is used for title
 				default:
 					$obj->{$data->name} = (string)$data->value->string;
