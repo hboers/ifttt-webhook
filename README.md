@@ -13,12 +13,19 @@ in the raw body of the post request in json encoded format.
     {
   "user" : "username specified in ifttt",
   "password" : "password specified in ifttt",
-  "description" : "description specified in ifttt",
-  "title" : "title generated for the recipe in ifttt",
-  "categories" : ["array","of","categories","passed"],
-  "tags" : ["array","of","tags","passed"]
+  "data" : "description specified in ifttt",
     }
 ```
+
+In Categories the target is specified. The target base url is specified in 
+the Application configuration. The first given categorie is appended as
+target. 
+
+  <base_url>/<categorie>
+
+#Limitations
+Only categories matching [A-Z][a-z][0-9]+ are accepted.
+Currently only the first categorie is used.
 
 #Licence
 Licenced under GPL. Some portions of the code are from wordpress itself. 
@@ -27,4 +34,9 @@ You should host this on your own server.
 #Use
 Clone the git repo to some place, setup your webserver and use that as the 
 wordpress installation location in ifttt.com channel settings.
+
+# Planning
+
+  * Sending more than one webhook request
+  * Allow full urls in categories (seems that IFTTT passes them untouched)
 
