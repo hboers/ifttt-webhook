@@ -21,7 +21,7 @@ In Categories the target is specified. The target base url is specified in
 the Application configuration. The first given categorie is appended as
 target. 
 
-  <base_url>/<categorie>
+  base_url/categorie
 
 #Limitations
 Only categories matching [A-Z][a-z][0-9]+ are accepted.
