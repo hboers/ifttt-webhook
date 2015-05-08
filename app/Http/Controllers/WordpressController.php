@@ -9,6 +9,7 @@ class WordpressController extends Controller {
 		$this->middleware('guest');
 	}
 
+
 	function postIndex(Request $request)
 	{
 		$xml = simplexml_load_string($request->getContent());
@@ -38,7 +39,10 @@ class WordpressController extends Controller {
 	private static function newPost($xml) {
 		//@see http://codex.wordpress.org/XML-RPC_WordPress_API/Posts#wp.newPost
 		$obj = new \stdClass;
-		//get the parameters from xml
+
+
+
+		// TODO Add User validation
 		$obj->user = (string)$xml->params->param[1]->value->string;
 		$obj->pass = (string)$xml->params->param[2]->value->string;
 
@@ -68,33 +72,36 @@ class WordpressController extends Controller {
 
 		foreach ($targets as $target) {
 
-			$client = new \GuzzleHttp\Client(['base_url' => $target]);
-			$response = $client->post('/', [
-				'headers' => ['Content-Type' => 'application/json'],
-				'body' => json_encode($obj)
-			]);
+			if(preg_match("/^[a-zA-Z0-9]+$/", $target) == 1) {
 
-			$status = $response->getStatusCode();
+			  $url = config('app.target');
+			  $url .= '/'.trim($target,'/');
+			
+			  $client = new \GuzzleHttp\Client();
+			  $response = $client->post($url, [
+				  'headers' => ['Content-Type' => 'application/json'],
+				  'body' => json_encode($obj)
+			  ]);
+
+			  $status = $response->getStatusCode();
 
 
-			if ($status < 400) {
-				self::success('<string>'.$status.'</string>');
+			  if ($status < 400) {
+				  self::success('<string>'.$status.'</string>');
+			  }
+
+			  else {
+				  self::failure($status);
+			  }
+
+			  // TODO process multiple Targets
 			}
 
 			else {
-				self::failure($status);
+				// TODO May be we should allow full urls here ?
+				self::failure(400);
 			}
-
-/*
-			$headers = array('Content-Type' => 'application/json');
-			$response = Requests::post($url, $headers, json_encode($obj));
-
-			if($response->success)
-				self::success('<string>'.$response->status_code.'</string>');
-			else
-				self::failure($response->status_code);
- */
-
+			break;
 		}
 
 		if (count($targets) == 0) {
