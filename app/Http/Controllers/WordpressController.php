@@ -9,7 +9,6 @@ class WordpressController extends Controller {
 		$this->middleware('guest');
 	}
 
-
 	function postIndex(Request $request)
 	{
 		$xml = simplexml_load_string($request->getContent());
@@ -23,8 +22,6 @@ class WordpressController extends Controller {
 
 			//first authentication request from ifttt
 			case 'metaWeblog.getRecentPosts':
-				//send a blank blog response
-				//this also makes sure that the channel is never triggered
 				self::success('<array><data></data></array>');
 				break;
 
@@ -32,40 +29,41 @@ class WordpressController extends Controller {
 				self::newPost($xml);
 				break;	
 		}
-
 	}
 	
-
 	private static function newPost($xml) {
-		//@see http://codex.wordpress.org/XML-RPC_WordPress_API/Posts#wp.newPost
-		$obj = new \stdClass;
 
+		$message = new App\Message;
+		$message->user = (string)$xml->params->param[1]->value->string;
+		$message->password = (string)$xml->params->param[2]->value->string;
 
-
-		// TODO Add User validation
-		$obj->user = (string)$xml->params->param[1]->value->string;
-		$obj->pass = (string)$xml->params->param[2]->value->string;
-
-		$targets=array();
+		$targets=[];
+		$tags=[];
 
 		$content = $xml->params->param[3]->value->struct->member;
 		foreach($content as $data) {
 
 			switch((string)$data->name) {
 
-				//neglect these sections of the request
-				case 'post_status' ://publish status
 				case 'mt_keywords': //tags
+					foreach($data->xpath('value/array/data/value/string') as $tag) {
+					  array_push($tags,(string)$tag);
+					}
+					$message->tags = implode("\n",tags);
 					break;
 
-				//the passed categories are parsed into an array
-				case 'categories':
-					foreach($data->xpath('value/array/data/value/string') as $cat)
-						array_push($targets,(string)$cat);
-					break;
+				case 'title':
+					$message->subject = (string)$data->value->string;
+					break;	  
 		
 				case 'description':
-					$obj->data = (string)$data->value->string;
+					$message->body = (string)$data->value->string;
+					break;
+
+				case 'categories':
+					foreach($data->xpath('value/array/data/value/string') as $cat) {
+					  array_push($targets,(string)$cat);
+					}
 					break;
 			}
 		}
