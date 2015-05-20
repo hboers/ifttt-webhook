@@ -70,6 +70,7 @@ class WordpressController extends Controller {
 			}
 		}
 
+        $processed = 0;
 		foreach ($targets as $target) {
 
 			if(preg_match("/^[a-zA-Z0-9]+$/", $target) == 1) {
@@ -87,26 +88,29 @@ class WordpressController extends Controller {
 
 
 			  if ($status < 400) {
-				  self::success('<string>'.$status.'</string>');
+			      $processed ++;
 			  }
 
 			  else {
+			      // Abort on failure
 				  self::failure($status);
 			  }
 
-			  // TODO process multiple Targets
 			}
 
 			else {
-				// TODO May be we should allow full urls here ?
+				// TODO May be we should allow full urls here too?
 				self::failure(400);
 			}
 			break;
 		}
 
-		if (count($targets) == 0) {
-			//since the url was invalid, we return 400 (Bad Request)
+		if (count($targets) == 0 || count($targets) != $processed) {
+			// none or not all targets have been processed
 			self::failure(400);
+		} else {
+		    self::success('<string>'.$status.'</string>');
+			
 		}
 	}
 
