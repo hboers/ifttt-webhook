@@ -21,15 +21,11 @@ In Categories the target is specified. The target base url is specified in
 the Application configuration. The first given categorie is appended as
 target. 
 
-  <base_url>/<categorie>
+  base_url/categorie
 
 #Limitations
 Only categories matching [A-Z][a-z][0-9]+ are accepted.
 Currently only the first categorie is used.
-
-#Licence
-Licenced under GPL. Some portions of the code are from wordpress itself. 
-You should host this on your own server. 
 
 #Use
 Clone the git repo to some place, setup your webserver and use that as the 
